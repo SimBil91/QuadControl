@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Quad Control</title>
+  <meta name="description" content="Server for quadcopter-wearable communication">
+  <link rel="stylesheet" href="css/styles.css?v=1.0">
+  <script src="Chart.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+  <h1>Quad Control</h1>
+  <form action="doc/module-copter_control.html">
+    <input type="submit" value="Open Documentation" />
+  </form>
+  <canvas id="myChart" width="400" height="80"></canvas>
+  <center>
+
+      <img src="hubsanx4.jpg" width="30%"></img>
+  </center>
+  <script>
+  // Create socket
+  var socket = io();
+  // Get canvas
+  var ctx = document.getElementById("myChart");
+  // Prepare data to be displayed
+  var data = {
+    labels: ["Throttle", "Yaw", "Pitch", "Roll"],
+    datasets: [
+        {
+            backgroundColor: [
+                'rgba(255, 99, 132, 0.5)',
+                'rgba(54, 162, 235, 0.5)',
+                'rgba(255, 206, 86, 0.5)',
+                'rgba(75, 192, 192, 0.5)'
+            ],
+            borderColor: [
+                'rgba(255,99,132,1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)'
+            ],
+            borderWidth: 1,
+            data: [0, 0, 0, 0],
+        }
+    ]
+};
+// Create the bar graph
+var myBarChart = new Chart(ctx, {
+    type: "horizontalBar",
+    data: data,
+    options: {
+      animation: {
+        animateScale:false
+      },
+      legend: {
+           display: false
+        },
+        scales: {
+            xAxes: [{
+              type: "linear",
+              ticks: {
+                 max: -100,
+                 min: 100,
+                 stepSize:0.5
+             },
+             stacked: true
+
+            }],
+            yAxes: [{
+                stacked: true
+            }]
+        }
+    }
+});
+socket.on('control_sim', function(con){
+  // update bar graph
+  data.datasets[0].data=[con.throttle,con.yaw,con.pitch,con.roll];
+  myBarChart.update(10);
+ });
+
+</script>
+</body>
+</html>
